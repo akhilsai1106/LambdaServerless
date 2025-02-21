@@ -1,23 +1,33 @@
 exports.handler = async (event) => {
-    console.log("Event Received:", JSON.stringify(event, null, 2));
+    // Extract HTTP method and path from the event
+    const path = event.rawPath || event.path || "";
+    const method = event.requestContext?.http?.method || "";
 
-    // Extract path and method
-    const path = event.rawPath || event.path;
-    const method = event.requestContext?.http?.method || event.httpMethod;
+    console.log(`Received request: ${method} ${path}`);
 
-    // Handle /hello GET request
+    // Handle only /hello GET requests
     if (path === "/hello" && method === "GET") {
         return {
             statusCode: 200,
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ message: "Hello from Lambda!" }),
+            body: JSON.stringify({
+                statusCode: 200,  
+                message: "Hello from Lambda"  
+            }),
+            headers: {
+                "Content-Type": "application/json"
+            }
         };
     }
 
-    // Return 400 Bad Request for other endpoints
+    // Return 400 Bad Request for other endpoints or methods
     return {
         statusCode: 400,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ error: `Bad Request: ${method} ${path} is not a valid endpoint.` }),
+        body: JSON.stringify({
+            statusCode: 400,   
+            message: `Bad request syntax or unsupported method. Request path: ${path}. HTTP method: ${method}`
+        }),
+        headers: {
+            "Content-Type": "application/json"
+        }
     };
 };
